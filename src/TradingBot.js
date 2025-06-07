@@ -64,7 +64,7 @@ class TradingBot {
         marketData
       )}
 
-      * Analyze the current market data for Internet Computer (ICP) from Binance (USD pairing) using Smart Money Concept (SMC) to identify the highest-probability buy or sell opportunity that maximizes potential wins. Leverage SMC principles such as liquidity zones, order blocks (prioritized), breaker blocks, and fair value gaps to pinpoint institutional activity. Avoid trading during periods of extreme volatility (e.g., when Bollinger Bands widen beyond 2.5 standard deviations from the 20-period mean on the 15-minute chart).
+      * Analyze the current market data from Binance using Smart Money Concept (SMC) to identify the highest-probability buy or sell opportunity that maximizes potential wins. Leverage SMC principles such as liquidity zones, order blocks (prioritized), breaker blocks, and fair value gaps to pinpoint institutional activity. Avoid trading during periods of extreme volatility (e.g., when Bollinger Bands widen beyond 2.5 standard deviations from the 20-period mean on the 15-minute chart).
       
       * Incorporate the following additional rules to increase win probability:
       
