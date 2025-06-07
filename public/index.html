@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Crypto Trading Bot Dashboard</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: #333;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        color: white;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      .dashboard {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      .card h2 {
+        margin-bottom: 15px;
+        color: #4a5568;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 10px;
+      }
+
+      .config-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      label {
+        font-weight: 600;
+        color: #4a5568;
+      }
+
+      input,
+      textarea,
+      select {
+        padding: 10px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      button {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .signals-section {
+        grid-column: 1 / -1;
+      }
+
+      .signals-grid {
+        display: grid;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .signal-card {
+        background: #f7fafc;
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+      }
+
+      .signal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .signal-pair {
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+
+      .signal-type {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .signal-buy {
+        background: #c6f6d5;
+        color: #22543d;
+      }
+      .signal-sell {
+        background: #fed7d7;
+        color: #742a2a;
+      }
+      .signal-hold {
+        background: #fef5e7;
+        color: #744210;
+      }
+
+      .signal-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+        font-size: 0.9rem;
+      }
+
+      .signal-detail {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .signal-detail strong {
+        color: #4a5568;
+      }
+
+      .logs-section {
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .log-item {
+        padding: 8px 0;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.9rem;
+      }
+
+      .log-time {
+        color: #718096;
+        font-size: 0.8rem;
+      }
+
+      .status-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+
+      .status-online {
+        background: #48bb78;
+      }
+      .status-offline {
+        background: #f56565;
+      }
+
+      @media (max-width: 768px) {
+        .dashboard {
+          grid-template-columns: 1fr;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🤖 AI Crypto Trading Bot</h1>
+        <p>Powered by DeepSeek V3 & Binance API</p>
+      </div>
+
+      <div class="dashboard">
+        <div class="card">
+          <h2>⚙️ Configuration</h2>
+          <div class="config-form">
+            <div class="form-group">
+              <label>Trading Pairs:</label>
+              <textarea
+                id="pairs"
+                rows="3"
+                placeholder="BTC/USDT, ETH/USDT, SOL/USDT"
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Timeframes:</label>
+              <input type="text" id="timeframes" placeholder="1m, 5m, 1h" />
+            </div>
+
+            <div class="form-group">
+              <label>Analysis Interval (minutes):</label>
+              <input type="number" id="interval" min="1" max="60" value="5" />
+            </div>
+
+            <div class="form-group">
+              <label>
+                <input type="checkbox" id="enabled" checked /> Enable Automated
+                Analysis
+              </label>
+            </div>
+
+            <button onclick="updateConfig()">Save Configuration</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>🎯 Manual Control</h2>
+          <div style="text-align: center">
+            <p style="margin-bottom: 20px">
+              Trigger immediate analysis for all configured pairs and
+              timeframes.
+            </p>
+            <button onclick="triggerAnalysis()" id="analyzeBtn">
+              🔍 Analyze Now
+            </button>
+            <div
+              id="analysisStatus"
+              style="margin-top: 15px; font-weight: bold"
+            ></div>
+          </div>
+
+          <div style="margin-top: 30px">
+            <h3>Bot Status</h3>
+            <p>
+              <span class="status-indicator status-online"></span>Trading Bot:
+              Online
+            </p>
+            <p>
+              <span class="status-indicator status-online"></span>Discord Bot:
+              Connected
+            </p>
+            <p>
+              <span class="status-indicator status-online"></span>Binance API:
+              Active
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card signals-section">
+        <h2>📊 Recent Signals</h2>
+        <button
+          onclick="refreshSignals()"
+          style="float: right; padding: 6px 12px; font-size: 14px"
+        >
+          Refresh
+        </button>
+        <div id="signalsContainer" class="signals-grid">
+          <p>Loading signals...</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px">
+        <h2>📝 Activity Logs</h2>
+        <div id="logsContainer" class="logs-section">
+          <p>Loading logs...</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Load initial data
+      loadConfig();
+      refreshSignals();
+      refreshLogs();
+
+      // Auto-refresh every 30 seconds
+      setInterval(() => {
+        refreshSignals();
+        refreshLogs();
+      }, 30000);
+
+      async function loadConfig() {
+        try {
+          const response = await fetch('/api/config');
+          const config = await response.json();
+
+          document.getElementById('pairs').value = config.pairs.join(', ');
+          document.getElementById('timeframes').value =
+            config.timeframes.join(', ');
+          document.getElementById('interval').value = config.analysisInterval;
+          document.getElementById('enabled').checked = config.enabled;
+        } catch (error) {
+          console.error('Failed to load config:', error);
+        }
+      }
+
+      async function updateConfig() {
+        try {
+          const config = {
+            pairs: document
+              .getElementById('pairs')
+              .value.split(',')
+              .map((p) => p.trim()),
+            timeframes: document
+              .getElementById('timeframes')
+              .value.split(',')
+              .map((t) => t.trim()),
+            analysisInterval: parseInt(
+              document.getElementById('interval').value
+            ),
+            enabled: document.getElementById('enabled').checked,
+          };
+
+          const response = await fetch('/api/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            alert('Configuration updated successfully!');
+          } else {
+            alert('Failed to update configuration: ' + result.error);
+          }
+        } catch (error) {
+          alert('Failed to update configuration: ' + error.message);
+        }
+      }
+
+      async function triggerAnalysis() {
+        const btn = document.getElementById('analyzeBtn');
+        const status = document.getElementById('analysisStatus');
+
+        btn.disabled = true;
+        btn.textContent = '🔄 Analyzing...';
+        status.textContent = 'Analysis in progress...';
+        status.style.color = '#667eea';
+
+        try {
+          const response = await fetch('/api/analyze', { method: 'POST' });
+          const result = await response.json();
+
+          if (result.success) {
+            status.textContent = `✅ Analysis completed! Generated ${result.results.length} signals.`;
+            status.style.color = '#48bb78';
+            refreshSignals();
+          } else {
+            status.textContent = '❌ Analysis failed: ' + result.error;
+            status.style.color = '#f56565';
+          }
+        } catch (error) {
+          status.textContent = '❌ Analysis failed: ' + error.message;
+          status.style.color = '#f56565';
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '🔍 Analyze Now';
+
+          setTimeout(() => {
+            status.textContent = '';
+          }, 5000);
+        }
+      }
+
+      async function refreshSignals() {
+        try {
+          const response = await fetch('/api/signals?limit=10');
+          const signals = await response.json();
+
+          const container = document.getElementById('signalsContainer');
+
+          if (signals.length === 0) {
+            container.innerHTML = '<p>No signals generated yet.</p>';
+            return;
+          }
+
+          container.innerHTML = signals
+            .map(
+              (signal) => `
+                    <div class="signal-card">
+                        <div class="signal-header">
+                            <span class="signal-pair">${signal.pair} (${
+                signal.timeframe
+              })</span>
+                            <span class="signal-type signal-${signal.signal.toLowerCase()}">${
+                signal.signal
+              }</span>
+                        </div>
+                        <div class="signal-details">
+                            <div class="signal-detail">
+                                <strong>Confidence</strong>
+                                <span>${signal.confidence}%</span>
+                            </div>
+                            <div class="signal-detail">
+                                <strong>Current Price</strong>
+                                <span>$${signal.current_price}</span>
+                            </div>
+                            <div class="signal-detail">
+                                <strong>Entry</strong>
+                                <span>$${signal.entry_price || 'N/A'}</span>
+                            </div>
+                            <div class="signal-detail">
+                                <strong>Stop Loss</strong>
+                                <span>$${signal.stop_loss || 'N/A'}</span>
+                            </div>
+                            <div class="signal-detail">
+                                <strong>Take Profit</strong>
+                                <span>$${signal.take_profit || 'N/A'}</span>
+                            </div>
+                            <div class="signal-detail">
+                                <strong>Time</strong>
+                                <span>${new Date(
+                                  signal.timestamp
+                                ).toLocaleString()}</span>
+                            </div>
+                        </div>
+                        ${
+                          signal.reasoning
+                            ? `<div style="margin-top: 10px; font-size: 0.9rem; color: #4a5568;"><strong>Reasoning:</strong> ${signal.reasoning}</div>`
+                            : ''
+                        }
+                    </div>
+                `
+            )
+            .join('');
+        } catch (error) {
+          document.getElementById('signalsContainer').innerHTML =
+            '<p>Failed to load signals.</p>';
+        }
+      }
+
+      async function refreshLogs() {
+        try {
+          const response = await fetch('/api/logs?limit=20');
+          const logs = await response.json();
+
+          const container = document.getElementById('logsContainer');
+
+          if (logs.length === 0) {
+            container.innerHTML = '<p>No logs available.</p>';
+            return;
+          }
+
+          container.innerHTML = logs
+            .map(
+              (log) => `
+                    <div class="log-item">
+                        <div class="log-time">${new Date(
+                          log.timestamp
+                        ).toLocaleString()}</div>
+                        <div>${log.message}</div>
+                    </div>
+                `
+            )
+            .join('');
+        } catch (error) {
+          document.getElementById('logsContainer').innerHTML =
+            '<p>Failed to load logs.</p>';
+        }
+      }
+    </script>
+  </body>
+</html>
